@@ -7,12 +7,6 @@
 
 An MCP server + CLI that connects AI coding agents to your real Chrome via CDP. Use as an MCP server for LLM-driven automation, or as a standalone CLI for direct browser control from the terminal.
 
-<div align="center">
-
-https://github.com/user-attachments/assets/1cdd9d53-95f6-434e-809f-9bbcaf4fd383
-
-</div>
-
 ## Why browsirai?
 
 - **Your sessions, zero config** — Connects to your real Chrome binary. Same binary = same Keychain encryption key = all your sessions work instantly. GitHub, Vercel, AWS, Jira — logged in from the start.
