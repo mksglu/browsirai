@@ -21,6 +21,62 @@ An MCP server + CLI that connects AI coding agents to your real Chrome via CDP. 
 
 - **Always up to date** — Auto-upgrade checks npm registry on every server start. Next session launches with the latest version. Zero manual intervention.
 
+## Demos
+
+<table>
+<tr>
+<td width="50%">
+
+**"show me my GitHub repos with star counts"**
+
+Your GitHub session is already there. No API tokens, no OAuth.
+
+https://github.com/user-attachments/assets/980a60c7-36c7-47f5-9598-dcc351ba93cf
+
+</td>
+<td width="50%">
+
+**"block my calendar tonight 7-8pm for dinner"**
+
+No Google OAuth registration. No Calendar API credentials. Your browser is already authenticated.
+
+https://github.com/user-attachments/assets/51574049-b02c-4821-a0d0-d2ede9115c26
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**"what am I working on right now?"**
+
+Reads your open tabs — the highest-signal context source no other agent can access.
+
+https://github.com/user-attachments/assets/4e61fede-bee6-4749-b26f-5eaf79e182f3
+
+</td>
+<td width="50%">
+
+**"check this repo for console errors and network requests"**
+
+Structured CDP data. ~500 tokens via snapshot vs ~10K via screenshot. 20x cheaper.
+
+https://github.com/user-attachments/assets/95e4643f-d6f6-4315-85f4-cf0774128192
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+
+**"which component renders this button? give me the source file."**
+
+Walks the React Fiber tree at runtime via CDP. No source maps, no devtools extension. React, Vue, Svelte.
+
+https://github.com/user-attachments/assets/e3370a69-a3ae-450b-bf2c-786e58ce27db
+
+</td>
+</tr>
+</table>
+
 ## Quick Start
 
 ```bash
