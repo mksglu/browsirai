@@ -342,6 +342,7 @@ export async function launchChromeWithDebugging(port = 9222, headless = false): 
   const args = [
     `--remote-debugging-port=${targetPort}`,
     "--remote-allow-origins=*",
+    "--no-sandbox",
   ];
 
   if (dataDir) {
@@ -525,6 +526,7 @@ export async function launchHeadlessChrome(): Promise<LaunchResult> {
     "--no-default-browser-check",
     "--disable-extensions",
     "--disable-gpu",
+    "--no-sandbox",
   ], {
     detached: true,
     stdio: "ignore",

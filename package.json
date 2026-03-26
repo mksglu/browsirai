@@ -1,6 +1,6 @@
 {
   "name": "browsirai",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Live browser plugin for AI coding agents. Connect to your running Chrome session via CDP.",
   "author": "Mert Koseoglu",
   "license": "AGPL-3.0",
