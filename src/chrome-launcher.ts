@@ -69,7 +69,7 @@ export function findChrome(): string | null {
   
   // Try which/where first across platforms
   const whichCommands = platform === "win32"
-    ? ["where chrome", "where chromium", "where msedge", "where brave", "where brave-browser"]
+    ? ["where chrome.exe", "where chromium.exe", "where msedge.exe", "where brave.exe"]
     : platform === "darwin"
       ? ["which google-chrome", "which chromium", "which chromium-browser", "which chrome"]
       : ["which google-chrome", "which google-chrome-stable", "which chromium", "which chromium-browser", "which microsoft-edge", "which brave-browser"];
@@ -79,7 +79,12 @@ export function findChrome(): string | null {
       const result = execSync(cmd, { stdio: "pipe" });
       const path = result.toString().trim();
       // 'where' on windows can return multiple lines, take the first one
-      if (path) return path.split('\n')[0]!.trim();
+      if (path) {
+        const firstPath = path.split('\n')[0]!.trim();
+        // Double check on Windows it actually gave us an executable and not just a directory named "chrome.exe" (unlikely, but safe)
+        if (platform === "win32" && !firstPath.toLowerCase().endsWith('.exe')) continue;
+        return firstPath;
+      }
     } catch {
       // try next
     }
@@ -97,6 +102,16 @@ export function findChrome(): string | null {
       "/Applications/Chromium.app/Contents/MacOS/Chromium",
       "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
       "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    ],
+    linux: [
+      "/usr/bin/google-chrome",
+      "/usr/bin/google-chrome-stable",
+      "/usr/bin/chromium",
+      "/usr/bin/chromium-browser",
+      "/opt/google/chrome/chrome",
+      "/snap/bin/chromium",
+      "/usr/bin/microsoft-edge-stable",
+      "/usr/bin/brave-browser",
     ],
     win32: [
       join(localAppData, "Google\\Chrome\\Application\\chrome.exe"),
