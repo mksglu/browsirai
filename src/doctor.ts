@@ -10,47 +10,7 @@ import { detectPlatform, getInstallConfig } from "./adapters/detect.js";
 import type { DiagnosticResult } from "./adapters/types.js";
 import { VERSION } from "./version.js";
 import { getInstallMethod, getInstallPath, getUpgradeStatus, checkForUpgrade } from "./upgrade.js";
-
-/**
- * Attempts to find the Chrome/Chromium executable path.
- * Returns the path if found, or null if not installed.
- */
-function findChromePath(): string | null {
-  // Try common which/where commands first (works across platforms, mockable in tests)
-  const whichCommands =
-    process.platform === "win32"
-      ? ["where chrome", "where chromium", "where msedge"]
-      : ["which google-chrome", "which chromium", "which chromium-browser", "which chrome"];
-
-  for (const cmd of whichCommands) {
-    try {
-      const result = execSync(cmd, { stdio: "pipe" });
-      const path = result.toString().trim();
-      if (path) return path;
-    } catch {
-      // Not found via this command, try next
-    }
-  }
-
-  // Fallback: check well-known macOS app bundle paths via shell
-  if (process.platform === "darwin") {
-    const macPaths = [
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-      "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
-    ];
-    for (const p of macPaths) {
-      try {
-        execSync(`test -x '${p}'`, { stdio: "pipe" });
-        return p;
-      } catch {
-        // Not found
-      }
-    }
-  }
-
-  return null;
-}
+import { findChrome, connectChrome } from "./chrome-launcher.js";
 
 /**
  * Checks if the current Node.js version meets the minimum requirement (>= 18).
@@ -182,7 +142,7 @@ export async function runDoctor(): Promise<DiagnosticResult[]> {
   }
 
   // 1. Check Chrome/Chromium installation
-  const chromePath = findChromePath();
+  const chromePath = findChrome();
   checks.push({
     ok: chromePath !== null,
     label: "Chrome/Chromium installed",
@@ -195,7 +155,6 @@ export async function runDoctor(): Promise<DiagnosticResult[]> {
   checks.push(checkNodeVersion());
 
   // 3. Check CDP connectivity — auto-launch Chrome with debugging if needed
-  const { connectChrome } = await import("./chrome-launcher.js");
   const connection = await connectChrome({ autoLaunch: !!chromePath });
 
   if (connection.success) {

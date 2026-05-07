@@ -3009,24 +3009,11 @@ describe("Doctor Command (src/doctor.ts)", () => {
 
   describe("runDoctor", () => {
     it("should check if Chrome/Chromium is installed", async () => {
-      mockExecSync.mockReturnValueOnce(
-        Buffer.from("/usr/bin/google-chrome")
-      );
-
       const result = await runDoctor();
 
-      // Should attempt to locate Chrome/Chromium binary
-      const execCalls = mockExecSync.mock.calls.map(
-        (c: unknown[]) => String(c[0])
-      );
-      const chromeCheck = execCalls.some(
-        (cmd: string) =>
-          cmd.includes("chrome") ||
-          cmd.includes("chromium") ||
-          cmd.includes("which") ||
-          cmd.includes("where")
-      );
-      expect(chromeCheck).toBe(true);
+      // Since findChrome is mocked, we verify that the mock was called
+      const mod = await import("../src/chrome-launcher.js");
+      expect(mod.findChrome).toHaveBeenCalled();
     });
 
     it("should check if Node.js version >= 22", async () => {
@@ -3137,7 +3124,8 @@ describe("Doctor Command (src/doctor.ts)", () => {
 
     it("should show Chrome path when found", async () => {
       const chromePath = "/usr/bin/google-chrome";
-      mockExecSync.mockReturnValue(Buffer.from(chromePath));
+      const mod = await import("../src/chrome-launcher.js");
+      vi.mocked(mod.findChrome).mockReturnValue(chromePath);
 
       const result = await runDoctor();
 
