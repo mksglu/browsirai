@@ -45,34 +45,6 @@ export interface ConnectResult {
 }
 
 // ---------------------------------------------------------------------------
-// Well-known Chrome paths per platform
-// ---------------------------------------------------------------------------
-
-const CHROME_PATHS: Record<string, string[]> = {
-  darwin: [
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
-  ],
-  linux: [
-    "google-chrome",
-    "google-chrome-stable",
-    "chromium",
-    "chromium-browser",
-    "microsoft-edge",
-    "brave-browser",
-  ],
-  win32: [
-    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-    "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-    "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
-  ],
-};
-
-// ---------------------------------------------------------------------------
 // Default Chrome data directory per platform
 // ---------------------------------------------------------------------------
 
@@ -94,21 +66,71 @@ export function getDefaultChromeDataDir(): string {
 
 export function findChrome(): string | null {
   const platform = process.platform;
-  const candidates = CHROME_PATHS[platform] ?? [];
+  
+  // Try which/where first across platforms
+  const whichCommands = platform === "win32"
+    ? ["where chrome.exe", "where chromium.exe", "where msedge.exe", "where brave.exe"]
+    : platform === "darwin"
+      ? ["which google-chrome", "which chromium", "which chromium-browser", "which chrome"]
+      : ["which google-chrome", "which google-chrome-stable", "which chromium", "which chromium-browser", "which microsoft-edge", "which brave-browser"];
 
-  for (const candidate of candidates) {
-    if (platform === "darwin" || platform === "win32") {
-      if (existsSync(candidate)) return candidate;
-    } else {
-      try {
-        const result = execSync(`which ${candidate}`, { stdio: "pipe" });
-        const path = result.toString().trim();
-        if (path) return path;
-      } catch {
-        // try next
+  for (const cmd of whichCommands) {
+    try {
+      const result = execSync(cmd, { stdio: "pipe" });
+      const path = result.toString().trim();
+      // 'where' on windows can return multiple lines, take the first one
+      if (path) {
+        const firstPath = path.split('\n')[0]!.trim();
+        // Double check on Windows it actually gave us an executable and not just a directory named "chrome.exe" (unlikely, but safe)
+        if (platform === "win32" && !firstPath.toLowerCase().endsWith('.exe')) continue;
+        return firstPath;
       }
+    } catch {
+      // try next
     }
   }
+
+  // Hardcoded fallbacks
+  const localAppData = process.env.LOCALAPPDATA || join(homedir(), "AppData", "Local");
+  const programFiles = process.env.PROGRAMFILES || "C:\\Program Files";
+  const programFilesX86 = process.env["PROGRAMFILES(X86)"] || "C:\\Program Files (x86)";
+
+  const CHROME_PATHS: Record<string, string[]> = {
+    darwin: [
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
+      "/Applications/Chromium.app/Contents/MacOS/Chromium",
+      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+      "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    ],
+    linux: [
+      "/usr/bin/google-chrome",
+      "/usr/bin/google-chrome-stable",
+      "/usr/bin/chromium",
+      "/usr/bin/chromium-browser",
+      "/opt/google/chrome/chrome",
+      "/snap/bin/chromium",
+      "/usr/bin/microsoft-edge-stable",
+      "/usr/bin/brave-browser",
+    ],
+    win32: [
+      join(localAppData, "Google\\Chrome\\Application\\chrome.exe"),
+      join(localAppData, "Microsoft\\Edge\\Application\\msedge.exe"),
+      join(localAppData, "BraveSoftware\\Brave-Browser\\Application\\brave.exe"),
+      join(programFiles, "Google\\Chrome\\Application\\chrome.exe"),
+      join(programFilesX86, "Google\\Chrome\\Application\\chrome.exe"),
+      join(programFiles, "Microsoft\\Edge\\Application\\msedge.exe"),
+      join(programFilesX86, "Microsoft\\Edge\\Application\\msedge.exe"),
+      join(programFiles, "BraveSoftware\\Brave-Browser\\Application\\brave.exe"),
+      join(programFilesX86, "BraveSoftware\\Brave-Browser\\Application\\brave.exe"),
+    ],
+  };
+
+  const candidates = CHROME_PATHS[platform] ?? [];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  
   return null;
 }
 
