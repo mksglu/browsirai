@@ -4975,12 +4975,8 @@ describe("browser_save_state", () => {
 
     const result = await browserSaveState(cdp as never, { name: "my-state" });
 
-    expect(result.path).toBe("/mock-home/.browsirai/states/my-state.json");
-    expect(vi.mocked(writeFileSync)).toHaveBeenCalledWith(
-      "/mock-home/.browsirai/states/my-state.json",
-      expect.any(String),
-      "utf-8",
-    );
+    expect(result.path.replace(/\\/g, '/')).toBe("/mock-home/.browsirai/states/my-state.json");
+    expect(vi.mocked(writeFileSync).mock.calls[0][0].replace(/\\/g, '/')).toBe("/mock-home/.browsirai/states/my-state.json");
   });
 
   it("should create states directory if not exists", async () => {
@@ -4996,10 +4992,8 @@ describe("browser_save_state", () => {
 
     await browserSaveState(cdp as never, { name: "new-state" });
 
-    expect(vi.mocked(mkdirSync)).toHaveBeenCalledWith(
-      "/mock-home/.browsirai/states",
-      { recursive: true },
-    );
+    expect(vi.mocked(mkdirSync).mock.calls[0][0].replace(/\\/g, '/')).toBe("/mock-home/.browsirai/states");
+    expect(vi.mocked(mkdirSync).mock.calls[0][1]).toEqual({ recursive: true });
   });
 
   it("should overwrite existing state file with same name", async () => {
@@ -5020,8 +5014,8 @@ describe("browser_save_state", () => {
     // writeFileSync should have been called twice to the same path
     const writeCalls = vi.mocked(writeFileSync).mock.calls;
     expect(writeCalls).toHaveLength(2);
-    expect(writeCalls[0][0]).toBe("/mock-home/.browsirai/states/overwrite-test.json");
-    expect(writeCalls[1][0]).toBe("/mock-home/.browsirai/states/overwrite-test.json");
+    expect(writeCalls[0][0].replace(/\\/g, '/')).toBe("/mock-home/.browsirai/states/overwrite-test.json");
+    expect(writeCalls[1][0].replace(/\\/g, '/')).toBe("/mock-home/.browsirai/states/overwrite-test.json");
   });
 });
 

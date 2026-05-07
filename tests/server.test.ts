@@ -1689,7 +1689,7 @@ describe("Config (src/config.ts)", () => {
 
     const allPaths = [...allCalls, ...existsCalls];
     const accessedConfigPath = allPaths.some((p) =>
-      p.includes(".browsirai/config.json")
+      p.replace(/\\/g, '/').includes(".browsirai/config.json")
     );
     expect(accessedConfigPath).toBe(true);
   });

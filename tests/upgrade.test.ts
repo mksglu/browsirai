@@ -325,11 +325,12 @@ describe("checkForUpgrade", () => {
 
     // We need the scriptPath to start with the global prefix.
     // Since we can't control import.meta.url, we'll make globalPrefix match the actual path
-    const actualScriptDir = (await import("node:url")).fileURLToPath(
-      import.meta.url,
-    );
-    const prefix = actualScriptDir.split("/").slice(0, 3).join("/"); // e.g. /Users/mksglu
-    cpMocks.execSync.mockReturnValue(Buffer.from(prefix + "\n"));
+      const actualScriptDir = (await import("node:url")).fileURLToPath(
+        import.meta.url,
+      );
+      const sep = actualScriptDir.includes("\\") ? "\\" : "/";
+      const prefix = actualScriptDir.split(sep).slice(0, 3).join(sep); // e.g. /Users/mksglu or C:\Users\mksglu
+      cpMocks.execSync.mockReturnValue(Buffer.from(prefix + "\n"));
 
     globalThis.fetch = vi.fn().mockResolvedValue(
       fakeResponse({ version: "2.0.0" }),

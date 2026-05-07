@@ -2428,7 +2428,7 @@ describe("Cross-OS Browser Paths", () => {
       const path = getChromePath("darwin", "chrome");
 
       // Then: It should be under ~/Library/Application Support/Google/Chrome
-      expect(path).toContain("Library/Application Support/Google/Chrome");
+      expect(path.replace(/\\/g, '/')).toContain("Library/Application Support/Google/Chrome");
       expect(path).toEndWith("DevToolsActivePort");
     });
 
@@ -2438,7 +2438,7 @@ describe("Cross-OS Browser Paths", () => {
       const path = getChromePath("linux", "chrome");
 
       // Then: It should be under ~/.config/google-chrome
-      expect(path).toContain(".config/google-chrome");
+      expect(path.replace(/\\/g, '/')).toContain(".config/google-chrome");
       expect(path).toEndWith("DevToolsActivePort");
     });
 
@@ -2482,13 +2482,13 @@ describe("Cross-OS Browser Paths", () => {
   describe("Brave DevToolsActivePort file paths", () => {
     it("should resolve the macOS path for Brave DevToolsActivePort", () => {
       const path = getChromePath("darwin", "brave");
-      expect(path).toContain("BraveSoftware/Brave-Browser");
+      expect(path.replace(/\\/g, '/')).toContain("BraveSoftware/Brave-Browser");
       expect(path).toEndWith("DevToolsActivePort");
     });
 
     it("should resolve the Linux path for Brave DevToolsActivePort", () => {
       const path = getChromePath("linux", "brave");
-      expect(path).toContain("BraveSoftware/Brave-Browser");
+      expect(path.replace(/\\/g, '/')).toContain("BraveSoftware/Brave-Browser");
       expect(path).toEndWith("DevToolsActivePort");
     });
 
